@@ -1,0 +1,29 @@
+# LangGraph + LangChain
+langgraph>=0.2.0
+langgraph-checkpoint-sqlite>=2.0.0
+langchain-anthropic>=0.1.0
+langchain-core>=0.2.0
+langchain-experimental>=0.0.50
+
+# Anthropic SDK (used directly in some nodes)
+anthropic>=0.25.0
+
+# Data + stats
+pandas>=2.0.0
+scipy>=1.11.0
+openpyxl>=3.1.0
+
+# Visualisation
+plotly>=5.18.0
+
+# UI
+gradio>=4.0.0,<5.0.0
+huggingface_hub<1.0.0
+
+# Schema + config
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0

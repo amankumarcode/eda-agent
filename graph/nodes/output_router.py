@@ -8,6 +8,7 @@ from outputs.dashboard import generate_dashboard
 from outputs.email_drafter import draft_email
 from outputs.json_summary import generate_json
 from outputs.report import generate_report
+from outputs.slack_notifier import notify_slack
 
 # Maps each OutputType to its handler function.
 # This is the single source of truth for output format dispatch.
@@ -55,6 +56,8 @@ def output_router_node(state: AgentState) -> dict:
                 output_paths[fmt.value] = path
             except Exception as e:
                 failed.append(f"{fmt.value}: {str(e)}")
+
+        notify_slack(state)
 
         success_count = len(output_paths)
         fail_count = len(failed)

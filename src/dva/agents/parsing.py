@@ -8,17 +8,19 @@ of the assigned table or null. The mapper sees column names and a coarse kind
 
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 from typing import Any, Literal
 
 import pandas as pd
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage, SystemMessage
-from pydantic import BaseModel, ConfigDict, create_model
+from pydantic import BaseModel, ConfigDict, Field, create_model
 
 from dva.agents.coercion import coerce_column, coerce_number, is_null
 from dva.agents.loaders import LoadIssue, RawTable, load_files, normalize_name
-from dva.config import session_logger
+from dva.agents.plausibility import run_plausibility
+from dva.config import PlausibilitySettings, session_logger
 from dva.data_model import DataModel, FieldSpec
 from dva.llm import invoke_structured
 from dva.state import Finding, FindingSource, IssueType, Severity
@@ -61,6 +63,16 @@ class ParsingResult(BaseModel):
     mapper_first_pass: list[bool] = []
 
 
+class ParseOptions(BaseModel):
+    """Settings and session context for one parsing run."""
+
+    retries: int
+    plausibility: PlausibilitySettings
+    today: date = Field(default_factory=date.today)
+    existing_refs: dict[str, str] = {}  # tables parsed earlier in the session
+    existing_profile: dict[str, Any] = {}
+
+
 class ParsingError(RuntimeError):
     """Parsing could not complete (for example, the column mapper failed twice)."""
 
@@ -70,15 +82,15 @@ def parse_files(
     model: DataModel,
     workspace: SessionWorkspace,
     mapper: BaseChatModel | None,
-    *,
-    retries: int,
-    existing_profile: dict[str, Any] | None = None,
+    options: ParseOptions,
 ) -> ParsingResult:
-    """Load, map, type-check and store the customer's files.
+    """Load, map, type-check and store the customer's files, then run plausibility checks.
 
-    Reads: the files. Writes: workspace/<session>/data/<table>.parquet for every table
-    found. ``existing_profile`` describes tables parsed earlier in the session, so
-    missing fields are judged across all tables. Raises ParsingError if the mapper fails.
+    Reads: the files, and Parquet files of tables parsed earlier (options.existing_refs).
+    Writes: workspace/<session>/data/<table>.parquet for every table found, canonical
+    category codes back into those files, and evidence CSVs under artifacts/. Missing
+    fields and plausibility are judged across all tables of the session.
+    Raises ParsingError if the column mapper fails twice.
     """
     log = session_logger(__name__, workspace.session_id, "parsing")
     loaded = load_files(paths, _vocabulary(model))
@@ -87,11 +99,18 @@ def parse_files(
     tokens, first_pass = 0, []
     for item in mappings:
         if item.unmapped and mapper is not None:
-            used, ok = _resolve_with_llm(item, model, mapper, retries)
+            used, ok = _resolve_with_llm(item, model, mapper, options.retries)
             tokens, first_pass = tokens + used, first_pass + [ok]
     log.info("loaded %d tables from %d files", len(mappings), len(paths))
-    return _build_result(mappings, issues, model, workspace, existing_profile or {},
-                         tokens, first_pass)  # fmt: skip
+    result = _build_result(mappings, issues, model, workspace, options.existing_profile)
+    checks = run_plausibility({**options.existing_refs, **result.parsed_data_ref}, model,
+                              options.plausibility, workspace, options.today)  # fmt: skip
+    return result.model_copy(update={
+        "findings": result.findings + checks.findings,
+        "checks_completed": result.checks_completed + checks.checks_completed,
+        "tokens_used": tokens,
+        "mapper_first_pass": first_pass,
+    })  # fmt: skip
 
 
 # --- deterministic mapping and table assignment -----------------------------------------
@@ -336,8 +355,6 @@ def _build_result(
     model: DataModel,
     workspace: SessionWorkspace,
     existing_profile: dict[str, Any],
-    tokens: int,
-    first_pass: list[bool],
 ) -> ParsingResult:
     workspace.ensure()
     refs, profile, type_findings = {}, {}, []
@@ -353,7 +370,7 @@ def _build_result(
         parsed_data_ref=refs, field_mapping=mapping, unmapped_columns=unmapped,
         missing_required_fields=missing_names, data_profile=profile,
         findings=_structural_findings(items, missing, issues) + type_findings,
-        checks_completed=present_checks, tokens_used=tokens, mapper_first_pass=first_pass,
+        checks_completed=present_checks,
     )  # fmt: skip
 
 
@@ -363,11 +380,16 @@ def _build_result(
 def parsing_state_update(state: dict[str, Any], result: ParsingResult) -> dict[str, Any]:
     """Merge a parsing result into session state and clear raw_files.
 
-    Tables parsed now replace earlier ones with the same name. Missing-field findings are
-    recomputed on every parse; other findings are merged by (field, issue_type), newest
-    first. Returns: the partial state update. Writes nothing.
+    Tables parsed now replace earlier ones with the same name. Missing-field and
+    plausibility findings are recomputed over all tables on every parse, so earlier ones
+    are dropped; other findings are merged by (field, issue_type), newest first.
+    Returns: the partial state update. Writes nothing.
     """
-    previous = [f for f in state.get("findings", []) if f.issue_type != IssueType.MISSING_FIELD]
+    previous = [
+        f
+        for f in state.get("findings", [])
+        if f.issue_type != IssueType.MISSING_FIELD and f.source != FindingSource.PLAUSIBILITY
+    ]
     merged = {(f.field, f.issue_type): f for f in previous}
     merged.update({(f.field, f.issue_type): f for f in result.findings})
     unmapped = list(dict.fromkeys([*state.get("unmapped_columns", []), *result.unmapped_columns]))

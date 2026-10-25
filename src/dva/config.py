@@ -72,6 +72,21 @@ class SandboxSettings(_Strict):
     blocked_modules: tuple[str, ...]
 
 
+class UnitCheckSettings(_Strict):
+    group_by: str
+    pack_size_field: str
+    fallback_pack_sizes: tuple[PositiveInt, ...]
+    min_ratio: float = Field(gt=1)
+    tolerance: float = Field(gt=0, lt=1)
+    min_rows: PositiveInt
+
+
+class PlausibilitySettings(_Strict):
+    unit_check: UnitCheckSettings
+    max_codes_in_detail: PositiveInt
+    max_evidence_rows: PositiveInt
+
+
 class DataModelSettings(_Strict):
     provider: Literal["yaml", "mcp"]
     default: str
@@ -94,6 +109,7 @@ class Settings(_Strict):
     llm: LlmSettings
     limits: LimitsSettings
     sandbox: SandboxSettings
+    plausibility: PlausibilitySettings
     data_model: DataModelSettings
     paths: PathSettings
     logging: LoggingSettings

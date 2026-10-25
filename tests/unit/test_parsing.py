@@ -1,11 +1,20 @@
 import json
+from datetime import date
+from pathlib import Path
 
 import pandas as pd
 import pytest
 from langchain_core.messages import HumanMessage
 
 from dva.agents.loaders import RawTable
-from dva.agents.parsing import ParsingError, assign_table, parse_files, parsing_state_update
+from dva.agents.parsing import (
+    ParseOptions,
+    ParsingError,
+    assign_table,
+    parse_files,
+    parsing_state_update,
+)
+from dva.config import load_settings
 from dva.state import Finding, IssueType
 from dva.workspace import session_workspace
 from fakes import FakeChatModel
@@ -15,6 +24,8 @@ FIXTURES = [
     "category_variants", "join_failure", "type_errors", "duplicates", "excel_messy",
     "email_table", "kitchen_sink",
 ]  # fmt: skip
+SETTINGS = load_settings(Path(__file__).parents[2] / "config" / "settings.yaml", load_env=False)
+OPTIONS = ParseOptions(retries=1, plausibility=SETTINGS.plausibility, today=date(2026, 10, 25))
 SALES_HEADER = "Txn_Date,Store_No,Item_No,Units,Sell_Price,Sales_Channel"
 
 
@@ -28,7 +39,7 @@ def _files(fixtures_dir, name):
 
 def _parse(paths, model, tmp_path, mapper=None):
     ws = session_workspace(tmp_path, "s1")
-    return parse_files(paths, model, ws, mapper or FakeChatModel(), retries=1)
+    return parse_files(paths, model, ws, mapper or FakeChatModel(), OPTIONS)
 
 
 def _counts(findings):
@@ -133,7 +144,7 @@ def test_clean_fixture_has_no_findings_and_writes_parquet(fixtures_dir, tmp_path
     assert str(pd.read_parquet(result.parsed_data_ref["products"])["pack_size"].dtype) == "Int64"
     assert result.data_profile["sales"]["rows"] == 2000
     assert result.data_profile["sales"]["sources"][0]["source"] == "sales.csv"
-    assert all(c.endswith(":present") for c in result.checks_completed)
+    assert sorted(result.checks_completed) == sorted(retail_model.required_checks())
 
 
 def test_type_errors_become_findings_with_ground_truth_counts(fixtures_dir, tmp_path, retail_model):

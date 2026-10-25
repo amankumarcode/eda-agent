@@ -35,6 +35,20 @@ sandbox:
   blocked_calls: [__import__, eval, exec, compile]
   blocked_modules: [os, sys, subprocess, socket, shutil]
 
+plausibility:
+  # Unit detection: a group (store) whose median positive quantity is about pack_size
+  # times the typical group median suggests cases were reported instead of units.
+  unit_check:
+    group_by: store_id              # field in the same table as the units field
+    pack_size_field: products.pack_size
+    fallback_pack_sizes: [6, 12, 24]
+    min_ratio: 4.0                  # ignore groups less than 4x the typical level
+    tolerance: 0.2                  # |ratio - pack| / pack within 20% (fallback windows
+                                    # for 6/12/24 then leave gaps at 7.2-9.6x, 14.4-19.2x)
+    min_rows: 20                    # ignore groups with fewer rows
+  max_codes_in_detail: 10
+  max_evidence_rows: 1000
+
 data_model:
   provider: yaml          # yaml | mcp (mcp arrives in Phase 8)
   default: retail_sales

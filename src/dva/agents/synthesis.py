@@ -221,17 +221,20 @@ def write_outputs(
     wording: SynthesisWording,
     workspace: SessionWorkspace,
     stop_reason: str | None = None,
+    *,
+    with_drafts: bool = True,
 ) -> SynthesisResult:
-    """Write report.md and queue both drafts as pending_review.
+    """Write report.md and, unless ``with_drafts`` is False, queue both drafts.
 
-    Writes: workspace/<session>/report.md and review_queue/<draft_id>.json. Sends nothing.
+    Writes: workspace/<session>/report.md and review_queue/<draft_id>.json (drafts are
+    pending_review). Sends nothing.
     """
     workspace.ensure()
     report_path = workspace.session_dir / REPORT_FILENAME
     report = render_report(inputs, wording.report_summary, workspace.session_dir, stop_reason)
     report_path.write_text(report, encoding="utf-8")
     queue = ReviewQueue(workspace)
-    drafts = make_drafts(inputs, wording)
+    drafts = make_drafts(inputs, wording) if with_drafts else []
     for draft in drafts:
         queue.save(draft)
     return SynthesisResult(report_ref=str(report_path), report_summary=wording.report_summary,

@@ -13,7 +13,7 @@ from typing import Literal
 
 import yaml
 from dotenv import load_dotenv
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
 
 CONFIG_ENV_VAR = "DVA_CONFIG"
 DEFAULT_CONFIG_PATH = Path("config/settings.yaml")
@@ -32,6 +32,7 @@ class ModelSettings(_Strict):
     provider: str
     model: str
     max_tokens: PositiveInt
+    effort: Literal["low", "medium", "high", "xhigh", "max"] | None = None
 
 
 class ModelsSettings(_Strict):
@@ -70,14 +71,45 @@ class SandboxSettings(_Strict):
     allowed_imports: tuple[str, ...]
     blocked_calls: tuple[str, ...]
     blocked_modules: tuple[str, ...]
+    fix_attempts: int = Field(ge=0, le=3)
+
+
+class UnitCheckSettings(_Strict):
+    group_by: str
+    pack_size_field: str
+    fallback_pack_sizes: tuple[PositiveInt, ...]
+    min_ratio: float = Field(gt=1)
+    tolerance: float = Field(gt=0, lt=1)
+    min_rows: PositiveInt
+
+
+class PlausibilitySettings(_Strict):
+    unit_check: UnitCheckSettings
+    max_codes_in_detail: PositiveInt
+    max_evidence_rows: PositiveInt
+
+
+class McpSettings(_Strict):
+    url: str | None = None
+    command: str | None = None
+    args: tuple[str, ...] = ()
+    timeout_seconds: PositiveInt = 30
 
 
 class DataModelSettings(_Strict):
     provider: Literal["yaml", "mcp"]
     default: str
+    mcp: McpSettings | None = None
+
+    @model_validator(mode="after")
+    def _mcp_configured(self) -> DataModelSettings:
+        if self.provider == "mcp" and self.mcp is None:
+            raise ValueError("data_model.mcp is required when provider is 'mcp'")
+        return self
 
 
 class PathSettings(_Strict):
+    project_root: Path = Path(".")  # made absolute like the others: the config's parent
     workspace_root: Path
     data_model_dir: Path
     checkpoint_db: Path
@@ -94,6 +126,7 @@ class Settings(_Strict):
     llm: LlmSettings
     limits: LimitsSettings
     sandbox: SandboxSettings
+    plausibility: PlausibilitySettings
     data_model: DataModelSettings
     paths: PathSettings
     logging: LoggingSettings

@@ -3,11 +3,13 @@
 
 models:
   # One entry per role; each is created with LangChain's init_chat_model.
-  orchestrator:  {provider: anthropic, model: claude-sonnet-5-5, max_tokens: 4096}
-  column_mapper: {provider: anthropic, model: claude-haiku-5-5,  max_tokens: 2048}
-  eda_coder:     {provider: anthropic, model: claude-opus-5-5,   max_tokens: 16000}
-  synthesis:     {provider: anthropic, model: claude-sonnet-5-5, max_tokens: 8192}
-  eval_matcher:  {provider: anthropic, model: claude-haiku-5-5,  max_tokens: 512}
+  # max_tokens includes adaptive-thinking tokens, so it is set well above the visible
+  # output; effort (low|medium|high|xhigh|max) controls how much the model thinks.
+  orchestrator:  {provider: anthropic, model: claude-sonnet-5-5, max_tokens: 16000, effort: medium}
+  column_mapper: {provider: anthropic, model: claude-haiku-5-5,  max_tokens: 8000,  effort: low}
+  eda_coder:     {provider: anthropic, model: claude-opus-5-5,   max_tokens: 16000, effort: medium}
+  synthesis:     {provider: anthropic, model: claude-sonnet-5-5, max_tokens: 8000,  effort: low}
+  eval_matcher:  {provider: anthropic, model: claude-haiku-5-5,  max_tokens: 4000,  effort: low}
 
 llm:
   # The Anthropic API rejects temperature/top_p/top_k since 2026-10-21, so no
@@ -18,26 +20,53 @@ llm:
   structured_output_retries: 1
 
 limits:
+  # Token budgets are about 5x the real usage measured in Phase 7 (~10k tokens per batch
+  # run, max 11k across all 12 fixtures).
   batch:
     max_tool_calls: 6
     wall_clock_seconds: 300
-    token_budget: 400000
+    token_budget: 60000
   chat:
     max_tool_calls: 4
     wall_clock_seconds: 120
-    token_budget: 150000
+    token_budget: 30000
 
 sandbox:
   timeout_seconds: 60
   memory_limit_mb: 1024
   output_char_limit: 4000
   allowed_imports: [pandas, numpy, json, math, statistics, re, datetime, collections, itertools]
-  blocked_calls: [__import__, eval, exec, compile]
+  # Spec list first; the rest close common escapes (dynamic attribute access, file handles).
+  blocked_calls: [__import__, eval, exec, compile, getattr, setattr, delattr, globals, locals,
+                  vars, open, input, breakpoint]
   blocked_modules: [os, sys, subprocess, socket, shutil]
+  fix_attempts: 1                 # one retry with the traceback after a failed run
+
+plausibility:
+  # Unit detection: a group (store) whose median positive quantity is about pack_size
+  # times the typical group median suggests cases were reported instead of units.
+  unit_check:
+    group_by: store_id              # field in the same table as the units field
+    pack_size_field: products.pack_size
+    fallback_pack_sizes: [6, 12, 24]
+    min_ratio: 4.0                  # ignore groups less than 4x the typical level
+    tolerance: 0.2                  # |ratio - pack| / pack within 20% (fallback windows
+                                    # for 6/12/24 then leave gaps at 7.2-9.6x, 14.4-19.2x)
+    min_rows: 20                    # ignore groups with fewer rows
+  max_codes_in_detail: 10
+  max_evidence_rows: 1000
 
 data_model:
-  provider: yaml          # yaml | mcp (mcp arrives in Phase 8)
+  provider: yaml          # yaml | mcp
   default: retail_sales
+  mcp:
+    # Use url for a Streamable HTTP server, or command + args for a stdio server.
+    # command null means "this Python interpreter". Relative args resolve from the
+    # project root. The default points at the mock server used in tests.
+    url: null
+    command: null
+    args: [tests/mcp_mock_server.py, --data-model-dir, config/data_model]
+    timeout_seconds: 30
 
 paths:
   workspace_root: workspace

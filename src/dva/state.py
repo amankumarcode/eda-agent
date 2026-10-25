@@ -104,6 +104,10 @@ class PipelineState(TypedDict, total=False):
     last_tool: str | None
     last_state_hash: str | None
     stop_reason: str | None
+    # Turn bookkeeping added in Phase 6: every tool call requested this turn (rejected ones
+    # marked), and the routing decision taken after the orchestrator's last message.
+    tool_history: list[str]
+    next_step: str | None
 
 
 # Fields reset at the start of every chat turn (and every batch run).
@@ -115,4 +119,6 @@ TURN_FIELDS: tuple[str, ...] = (
     "last_tool",
     "last_state_hash",
     "stop_reason",
+    "tool_history",
+    "next_step",
 )

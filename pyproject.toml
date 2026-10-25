@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "dva"
 version = "0.1.0"
 description = "Data validation agent: checks customer data files against an internal data model."
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "langgraph==1.2.17",
@@ -31,14 +32,14 @@ dev = [
 ]
 
 [project.scripts]
-dva = "dva.cli:app"
+dva = "dva.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["tests"]
+pythonpath = ["tests", "evals"]
 addopts = "--import-mode=importlib"
 
 [tool.ruff]

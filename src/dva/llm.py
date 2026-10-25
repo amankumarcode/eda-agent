@@ -43,6 +43,8 @@ def create_chat_model(settings: Settings, role: Role) -> BaseChatModel:
     """
     spec = settings.models.for_role(role)
     kwargs: dict = {"max_tokens": spec.max_tokens}
+    if spec.effort is not None:
+        kwargs["effort"] = spec.effort
     if settings.llm.temperature is not None:
         kwargs["temperature"] = settings.llm.temperature
     return init_chat_model(spec.model, model_provider=spec.provider, **kwargs)

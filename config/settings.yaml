@@ -43,7 +43,7 @@ paths:
   workspace_root: workspace
   data_model_dir: config/data_model
   checkpoint_db: workspace/checkpoints.sqlite
-  fixtures_dir: tests/dva/fixtures
+  fixtures_dir: tests/fixtures
   eval_results_dir: evals/results
 
 logging:

@@ -23,6 +23,7 @@ from pydantic import ValidationError
 
 from dva.config import Role, Settings, configure_logging, load_settings
 from dva.data_model import DataModelNotFoundError, make_provider
+from dva.data_model.mcp_provider import DataModelProviderError
 from dva.llm import create_chat_model
 from dva.orchestrator.graph import (
     build_graph,
@@ -101,7 +102,7 @@ def _setup(data_model: str | None) -> tuple[Settings, GraphDeps]:
     configure_logging(settings)
     try:
         return settings, build_deps(settings, data_model)
-    except DataModelNotFoundError as exc:
+    except (DataModelNotFoundError, DataModelProviderError) as exc:
         typer.echo(f"Error: {exc}", err=True)
         raise typer.Exit(2) from exc
 

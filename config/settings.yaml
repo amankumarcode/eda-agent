@@ -57,8 +57,16 @@ plausibility:
   max_evidence_rows: 1000
 
 data_model:
-  provider: yaml          # yaml | mcp (mcp arrives in Phase 8)
+  provider: yaml          # yaml | mcp
   default: retail_sales
+  mcp:
+    # Use url for a Streamable HTTP server, or command + args for a stdio server.
+    # command null means "this Python interpreter". Relative args resolve from the
+    # project root. The default points at the mock server used in tests.
+    url: null
+    command: null
+    args: [tests/mcp_mock_server.py, --data-model-dir, config/data_model]
+    timeout_seconds: 30
 
 paths:
   workspace_root: workspace

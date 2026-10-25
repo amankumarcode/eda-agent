@@ -13,7 +13,7 @@ from typing import Literal
 
 import yaml
 from dotenv import load_dotenv
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
 
 CONFIG_ENV_VAR = "DVA_CONFIG"
 DEFAULT_CONFIG_PATH = Path("config/settings.yaml")
@@ -89,12 +89,27 @@ class PlausibilitySettings(_Strict):
     max_evidence_rows: PositiveInt
 
 
+class McpSettings(_Strict):
+    url: str | None = None
+    command: str | None = None
+    args: tuple[str, ...] = ()
+    timeout_seconds: PositiveInt = 30
+
+
 class DataModelSettings(_Strict):
     provider: Literal["yaml", "mcp"]
     default: str
+    mcp: McpSettings | None = None
+
+    @model_validator(mode="after")
+    def _mcp_configured(self) -> DataModelSettings:
+        if self.provider == "mcp" and self.mcp is None:
+            raise ValueError("data_model.mcp is required when provider is 'mcp'")
+        return self
 
 
 class PathSettings(_Strict):
+    project_root: Path = Path(".")  # made absolute like the others: the config's parent
     workspace_root: Path
     data_model_dir: Path
     checkpoint_db: Path

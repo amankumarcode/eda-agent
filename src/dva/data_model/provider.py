@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
@@ -32,4 +33,10 @@ def make_provider(settings: Settings) -> DataModelProvider:
         from dva.data_model.yaml_provider import YamlDataModelProvider
 
         return YamlDataModelProvider(settings.paths.data_model_dir)
-    raise NotImplementedError("the MCP data model provider arrives in Phase 8")
+    from dva.data_model.mcp_provider import McpDataModelProvider, stdio_parameters
+
+    mcp = settings.data_model.mcp
+    assert mcp is not None  # guaranteed by DataModelSettings validation
+    server = mcp.url or stdio_parameters(mcp.command or sys.executable, list(mcp.args),
+                                         str(settings.paths.project_root))  # fmt: skip
+    return McpDataModelProvider(server, timeout_seconds=mcp.timeout_seconds)

@@ -45,3 +45,14 @@ CLAUDE.md
 
 # Claude Code
 .claude/
+
+# --- Data Validation Agent ---
+# Build spec and decisions stay local only (owner request)
+docs/
+.venv-dva/
+workspace/
+*.egg-info/
+.ruff_cache/
+# Generated fixtures are committed on purpose (overrides *.csv / *.xlsx above)
+!tests/dva/fixtures/**/*.csv
+!tests/dva/fixtures/**/*.xlsx

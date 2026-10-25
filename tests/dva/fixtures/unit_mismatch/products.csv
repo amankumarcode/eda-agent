@@ -1,0 +1,301 @@
+sku,category,pack_size
+SKU00001,Dairy,12
+SKU00002,Frozen,12
+SKU00003,Beverages,12
+SKU00004,Snacks,6
+SKU00005,Beverages,6
+SKU00006,Snacks,12
+SKU00007,Frozen,12
+SKU00008,Personal Care,6
+SKU00009,Snacks,12
+SKU00010,Dairy,24
+SKU00011,Frozen,6
+SKU00012,Frozen,24
+SKU00013,Personal Care,6
+SKU00014,Beverages,24
+SKU00015,Household,6
+SKU00016,Snacks,12
+SKU00017,Household,12
+SKU00018,Dairy,6
+SKU00019,Frozen,12
+SKU00020,Snacks,12
+SKU00021,Household,1
+SKU00022,Dairy,6
+SKU00023,Beverages,24
+SKU00024,Household,6
+SKU00025,Beverages,12
+SKU00026,Frozen,24
+SKU00027,Beverages,12
+SKU00028,Snacks,12
+SKU00029,Household,1
+SKU00030,Personal Care,12
+SKU00031,Frozen,6
+SKU00032,Household,12
+SKU00033,Dairy,12
+SKU00034,Snacks,24
+SKU00035,Snacks,24
+SKU00036,Frozen,12
+SKU00037,Dairy,6
+SKU00038,Snacks,6
+SKU00039,Snacks,24
+SKU00040,Frozen,24
+SKU00041,Beverages,12
+SKU00042,Personal Care,12
+SKU00043,Household,12
+SKU00044,Dairy,6
+SKU00045,Beverages,12
+SKU00046,Dairy,24
+SKU00047,Snacks,24
+SKU00048,Dairy,12
+SKU00049,Snacks,12
+SKU00050,Frozen,24
+SKU00051,Snacks,1
+SKU00052,Beverages,6
+SKU00053,Beverages,24
+SKU00054,Personal Care,1
+SKU00055,Household,12
+SKU00056,Frozen,12
+SKU00057,Frozen,24
+SKU00058,Personal Care,6
+SKU00059,Beverages,1
+SKU00060,Household,12
+SKU00061,Dairy,12
+SKU00062,Dairy,6
+SKU00063,Snacks,6
+SKU00064,Personal Care,12
+SKU00065,Household,12
+SKU00066,Frozen,6
+SKU00067,Personal Care,12
+SKU00068,Snacks,12
+SKU00069,Frozen,12
+SKU00070,Snacks,6
+SKU00071,Beverages,12
+SKU00072,Household,12
+SKU00073,Snacks,12
+SKU00074,Dairy,12
+SKU00075,Personal Care,12
+SKU00076,Dairy,1
+SKU00077,Frozen,24
+SKU00078,Frozen,24
+SKU00079,Dairy,12
+SKU00080,Dairy,24
+SKU00081,Household,12
+SKU00082,Personal Care,1
+SKU00083,Dairy,1
+SKU00084,Snacks,24
+SKU00085,Frozen,12
+SKU00086,Dairy,1
+SKU00087,Personal Care,6
+SKU00088,Snacks,12
+SKU00089,Snacks,24
+SKU00090,Beverages,12
+SKU00091,Snacks,12
+SKU00092,Beverages,12
+SKU00093,Snacks,12
+SKU00094,Dairy,12
+SKU00095,Personal Care,6
+SKU00096,Personal Care,12
+SKU00097,Personal Care,24
+SKU00098,Household,6
+SKU00099,Frozen,1
+SKU00100,Personal Care,6
+SKU00101,Dairy,12
+SKU00102,Personal Care,24
+SKU00103,Snacks,24
+SKU00104,Frozen,24
+SKU00105,Beverages,12
+SKU00106,Personal Care,12
+SKU00107,Personal Care,12
+SKU00108,Household,1
+SKU00109,Personal Care,6
+SKU00110,Household,12
+SKU00111,Dairy,6
+SKU00112,Personal Care,12
+SKU00113,Beverages,12
+SKU00114,Dairy,24
+SKU00115,Frozen,12
+SKU00116,Personal Care,12
+SKU00117,Dairy,1
+SKU00118,Personal Care,12
+SKU00119,Dairy,24
+SKU00120,Beverages,12
+SKU00121,Frozen,1
+SKU00122,Snacks,24
+SKU00123,Household,12
+SKU00124,Beverages,1
+SKU00125,Household,24
+SKU00126,Personal Care,12
+SKU00127,Frozen,12
+SKU00128,Beverages,12
+SKU00129,Dairy,12
+SKU00130,Snacks,24
+SKU00131,Personal Care,24
+SKU00132,Personal Care,12
+SKU00133,Frozen,12
+SKU00134,Personal Care,12
+SKU00135,Snacks,1
+SKU00136,Frozen,12
+SKU00137,Snacks,24
+SKU00138,Dairy,6
+SKU00139,Dairy,24
+SKU00140,Dairy,24
+SKU00141,Dairy,12
+SKU00142,Beverages,12
+SKU00143,Beverages,12
+SKU00144,Personal Care,1
+SKU00145,Household,6
+SKU00146,Snacks,12
+SKU00147,Dairy,12
+SKU00148,Snacks,1
+SKU00149,Frozen,6
+SKU00150,Snacks,6
+SKU00151,Household,1
+SKU00152,Frozen,12
+SKU00153,Household,6
+SKU00154,Beverages,1
+SKU00155,Beverages,12
+SKU00156,Beverages,12
+SKU00157,Dairy,12
+SKU00158,Frozen,24
+SKU00159,Personal Care,6
+SKU00160,Frozen,12
+SKU00161,Personal Care,6
+SKU00162,Household,24
+SKU00163,Dairy,12
+SKU00164,Household,12
+SKU00165,Beverages,24
+SKU00166,Frozen,1
+SKU00167,Dairy,1
+SKU00168,Beverages,24
+SKU00169,Personal Care,24
+SKU00170,Snacks,12
+SKU00171,Household,1
+SKU00172,Dairy,24
+SKU00173,Personal Care,12
+SKU00174,Personal Care,24
+SKU00175,Beverages,1
+SKU00176,Snacks,1
+SKU00177,Beverages,24
+SKU00178,Personal Care,1
+SKU00179,Personal Care,6
+SKU00180,Frozen,12
+SKU00181,Beverages,24
+SKU00182,Frozen,12
+SKU00183,Household,12
+SKU00184,Snacks,12
+SKU00185,Household,12
+SKU00186,Frozen,1
+SKU00187,Snacks,12
+SKU00188,Dairy,24
+SKU00189,Household,6
+SKU00190,Household,1
+SKU00191,Frozen,6
+SKU00192,Personal Care,1
+SKU00193,Personal Care,24
+SKU00194,Beverages,6
+SKU00195,Frozen,12
+SKU00196,Frozen,12
+SKU00197,Household,12
+SKU00198,Dairy,6
+SKU00199,Frozen,12
+SKU00200,Dairy,12
+SKU00201,Frozen,1
+SKU00202,Personal Care,24
+SKU00203,Personal Care,12
+SKU00204,Dairy,12
+SKU00205,Frozen,12
+SKU00206,Snacks,12
+SKU00207,Snacks,12
+SKU00208,Frozen,12
+SKU00209,Frozen,24
+SKU00210,Personal Care,24
+SKU00211,Frozen,1
+SKU00212,Frozen,12
+SKU00213,Beverages,6
+SKU00214,Frozen,1
+SKU00215,Dairy,24
+SKU00216,Household,12
+SKU00217,Beverages,6
+SKU00218,Dairy,12
+SKU00219,Beverages,6
+SKU00220,Household,24
+SKU00221,Personal Care,12
+SKU00222,Dairy,24
+SKU00223,Dairy,12
+SKU00224,Frozen,12
+SKU00225,Household,12
+SKU00226,Dairy,6
+SKU00227,Beverages,12
+SKU00228,Personal Care,6
+SKU00229,Household,12
+SKU00230,Snacks,1
+SKU00231,Personal Care,12
+SKU00232,Personal Care,12
+SKU00233,Personal Care,12
+SKU00234,Frozen,6
+SKU00235,Beverages,24
+SKU00236,Household,24
+SKU00237,Frozen,6
+SKU00238,Beverages,24
+SKU00239,Beverages,12
+SKU00240,Beverages,1
+SKU00241,Frozen,1
+SKU00242,Household,6
+SKU00243,Frozen,6
+SKU00244,Household,12
+SKU00245,Dairy,12
+SKU00246,Personal Care,24
+SKU00247,Dairy,12
+SKU00248,Dairy,12
+SKU00249,Frozen,12
+SKU00250,Personal Care,1
+SKU00251,Personal Care,12
+SKU00252,Frozen,12
+SKU00253,Snacks,1
+SKU00254,Personal Care,12
+SKU00255,Household,12
+SKU00256,Dairy,1
+SKU00257,Snacks,24
+SKU00258,Personal Care,6
+SKU00259,Personal Care,12
+SKU00260,Household,12
+SKU00261,Beverages,12
+SKU00262,Personal Care,12
+SKU00263,Dairy,24
+SKU00264,Dairy,1
+SKU00265,Personal Care,6
+SKU00266,Frozen,24
+SKU00267,Personal Care,12
+SKU00268,Dairy,24
+SKU00269,Frozen,6
+SKU00270,Frozen,6
+SKU00271,Household,12
+SKU00272,Frozen,12
+SKU00273,Snacks,12
+SKU00274,Beverages,6
+SKU00275,Frozen,12
+SKU00276,Frozen,12
+SKU00277,Frozen,24
+SKU00278,Frozen,12
+SKU00279,Frozen,12
+SKU00280,Household,1
+SKU00281,Beverages,24
+SKU00282,Frozen,12
+SKU00283,Household,1
+SKU00284,Frozen,6
+SKU00285,Snacks,1
+SKU00286,Household,12
+SKU00287,Personal Care,12
+SKU00288,Household,12
+SKU00289,Dairy,12
+SKU00290,Personal Care,24
+SKU00291,Beverages,12
+SKU00292,Frozen,12
+SKU00293,Frozen,6
+SKU00294,Beverages,12
+SKU00295,Beverages,12
+SKU00296,Personal Care,12
+SKU00297,Household,12
+SKU00298,Frozen,6
+SKU00299,Snacks,12
+SKU00300,Snacks,12

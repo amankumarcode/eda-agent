@@ -1,0 +1,65 @@
+{
+  "description": "Renamed columns + Cashier_Notes, cases in 3 stores, 37 cent prices, 25 ZZ channel codes, 150 unknown SKUs, 50 duplicates.",
+  "files": {
+    "sales": "sales.csv",
+    "products": "products.csv",
+    "stores": "stores.csv"
+  },
+  "rows": {
+    "sales": 10000,
+    "products": 300,
+    "stores": 40
+  },
+  "expected_field_mapping": {
+    "Txn_Date": "transaction_date",
+    "Store_No": "store_id",
+    "Item_No": "sku",
+    "Units_Sold": "quantity",
+    "Sell_Price": "unit_price",
+    "Sales_Channel": "channel",
+    "On_Promo": "promo_flag",
+    "Cashier_Notes": null,
+    "UPC": "sku",
+    "Dept": "category",
+    "Case_Pack": "pack_size",
+    "District": "region"
+  },
+  "expected_missing_required_fields": [],
+  "expected_issues": [
+    {
+      "field": "Cashier_Notes",
+      "issue_type": "unmapped_column",
+      "count": 10000
+    },
+    {
+      "field": "quantity",
+      "issue_type": "unit_mismatch",
+      "count_approx": 798
+    },
+    {
+      "field": "unit_price",
+      "issue_type": "implausible_value",
+      "count": 37
+    },
+    {
+      "field": "channel",
+      "issue_type": "unmapped_category",
+      "count": 25
+    },
+    {
+      "field": "sku",
+      "issue_type": "join_failure",
+      "count": 150
+    },
+    {
+      "field": "*",
+      "issue_type": "duplicate_rows",
+      "count": 50
+    }
+  ],
+  "case_stores": [
+    "S004",
+    "S021",
+    "S038"
+  ]
+}

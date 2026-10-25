@@ -1,72 +1,50 @@
-import pandas as pd
+"""Shared fixtures for the DVA test suite."""
+
+from __future__ import annotations
+
+import importlib.util
+import sys
+from pathlib import Path
+from types import ModuleType
+
 import pytest
-from unittest.mock import MagicMock
 
-from core.dataframe_registry import clear as clear_registry
-from core.dataframe_registry import register as register_df
-from core.schema import AgentResult, EDARequest, OutputType
-from core.state import AgentState
+from dva.config import Settings, load_settings
+from dva.data_model import DataModel, make_provider
 
-
-@pytest.fixture(autouse=True)
-def reset_registry():
-    """Clear the DataFrame registry before and after every test."""
-    clear_registry()
-    yield
-    clear_registry()
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SETTINGS_PATH = PROJECT_ROOT / "config" / "settings.yaml"
 
 
-@pytest.fixture
-def sample_df() -> pd.DataFrame:
-    return pd.DataFrame({
-        "age":    [25, 32, 47, 51, 23, 38, 61, 29, 44, 35],
-        "income": [40000, 58000, 92000, 105000, 36000, 74000, 120000, 52000, 88000, 67000],
-        "score":  [72, 85, 91, 78, 65, 88, 95, 70, 82, 79],
-        "region": ["N", "S", "E", "W", "N", "E", "S", "W", "N", "E"],
-    })
+@pytest.fixture(scope="session")
+def project_root() -> Path:
+    return PROJECT_ROOT
 
 
-@pytest.fixture
-def sample_request(sample_df: pd.DataFrame) -> EDARequest:
-    session_id = "test-session-001"
-    register_df(session_id, sample_df)
-    return EDARequest(
-        goal="Find key drivers of income",
-        session_id=session_id,
-        output_formats=[OutputType.REPORT, OutputType.JSON],
-        metadata={
-            "filename": "sample.csv",
-            "shape": [10, 4],
-            "columns": ["age", "income", "score", "region"],
-        },
-    )
+@pytest.fixture(scope="session")
+def settings() -> Settings:
+    return load_settings(SETTINGS_PATH, load_env=False)
 
 
-@pytest.fixture
-def base_state(sample_request: EDARequest) -> AgentState:
-    return AgentState(
-        request=sample_request,
-        plan=None,
-        plan_approved=False,
-        agent_results=[],
-        scored_results=[],
-        rerun_agent=None,
-        rerun_count=0,
-        narrative=None,
-        key_insights=[],
-        caveats=[],
-        output_paths={},
-        messages=[],
-        evaluation=None,
-        evaluation_count=0,
-        dispatched_agents=[],
-        completed_agents=[],
-        next_action=None,
-    )
+@pytest.fixture(scope="session")
+def retail_model(settings: Settings) -> DataModel:
+    return make_provider(settings).get_model("retail_sales")
 
 
-@pytest.fixture
-def mock_llm() -> MagicMock:
-    llm = MagicMock()
-    llm.invoke.return_value = MagicMock(content="Mocked LLM response")
-    return llm
+@pytest.fixture(scope="session")
+def fixtures_dir(settings: Settings) -> Path:
+    return settings.paths.fixtures_dir
+
+
+@pytest.fixture(scope="session")
+def generator() -> ModuleType:
+    """The fixture generator script, imported as a module."""
+    name = "generate_fixtures"
+    if name in sys.modules:
+        return sys.modules[name]
+    spec = importlib.util.spec_from_file_location(name, PROJECT_ROOT / "scripts" / f"{name}.py")
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module

@@ -37,20 +37,14 @@ dva = "dva.cli:app"
 where = ["src"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests/dva"]
-pythonpath = ["tests/dva"]
-# Stop conftest discovery at tests/dva so the legacy tests/conftest.py is never loaded.
-addopts = "--confcutdir=tests/dva --import-mode=importlib"
+testpaths = ["tests"]
+pythonpath = ["tests"]
+addopts = "--import-mode=importlib"
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-src = ["src", "tests/dva", "scripts", "evals"]
-# Legacy EDA agent code is left untouched until Phase 9.
-extend-exclude = [
-    "core", "graph", "memory", "adapters", "outputs", "run.py",
-    "tests/unit", "tests/integration", "tests/conftest.py", "tests/__init__.py",
-]
+src = ["src", "tests", "scripts", "evals"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]

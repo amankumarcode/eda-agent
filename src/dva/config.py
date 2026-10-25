@@ -70,6 +70,7 @@ class SandboxSettings(_Strict):
     allowed_imports: tuple[str, ...]
     blocked_calls: tuple[str, ...]
     blocked_modules: tuple[str, ...]
+    fix_attempts: int = Field(ge=0, le=3)
 
 
 class UnitCheckSettings(_Strict):

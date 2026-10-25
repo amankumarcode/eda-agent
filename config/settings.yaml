@@ -32,8 +32,11 @@ sandbox:
   memory_limit_mb: 1024
   output_char_limit: 4000
   allowed_imports: [pandas, numpy, json, math, statistics, re, datetime, collections, itertools]
-  blocked_calls: [__import__, eval, exec, compile]
+  # Spec list first; the rest close common escapes (dynamic attribute access, file handles).
+  blocked_calls: [__import__, eval, exec, compile, getattr, setattr, delattr, globals, locals,
+                  vars, open, input, breakpoint]
   blocked_modules: [os, sys, subprocess, socket, shutil]
+  fix_attempts: 1                 # one retry with the traceback after a failed run
 
 plausibility:
   # Unit detection: a group (store) whose median positive quantity is about pack_size

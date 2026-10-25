@@ -1,0 +1,38 @@
+{
+  "description": "Dates as text in mixed formats; prices with $ or a decimal comma.",
+  "files": {
+    "sales": "sales.csv",
+    "products": "products.csv",
+    "stores": "stores.csv"
+  },
+  "rows": {
+    "sales": 2000,
+    "products": 300,
+    "stores": 40
+  },
+  "expected_field_mapping": {
+    "transaction_date": "transaction_date",
+    "store_id": "store_id",
+    "sku": "sku",
+    "quantity": "quantity",
+    "unit_price": "unit_price",
+    "channel": "channel",
+    "promo_flag": "promo_flag",
+    "category": "category",
+    "pack_size": "pack_size",
+    "region": "region"
+  },
+  "expected_missing_required_fields": [],
+  "expected_issues": [
+    {
+      "field": "transaction_date",
+      "issue_type": "type_mismatch",
+      "count": 1173
+    },
+    {
+      "field": "unit_price",
+      "issue_type": "type_mismatch",
+      "count": 1194
+    }
+  ]
+}

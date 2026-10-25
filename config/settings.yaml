@@ -1,0 +1,50 @@
+# Data Validation Agent settings. Every limit, path, and model name lives here.
+# Relative paths are resolved against the project root (the parent of config/).
+
+models:
+  # One entry per role; each is created with LangChain's init_chat_model.
+  orchestrator:  {provider: anthropic, model: claude-sonnet-5-5, max_tokens: 4096}
+  column_mapper: {provider: anthropic, model: claude-haiku-5-5,  max_tokens: 2048}
+  eda_coder:     {provider: anthropic, model: claude-opus-5-5,   max_tokens: 16000}
+  synthesis:     {provider: anthropic, model: claude-sonnet-5-5, max_tokens: 8192}
+  eval_matcher:  {provider: anthropic, model: claude-haiku-5-5,  max_tokens: 512}
+
+llm:
+  # The Anthropic API rejects temperature/top_p/top_k since 2026-10-21, so no
+  # sampling parameter is sent (approved deviation from "temperature 0").
+  temperature: null
+  # Native structured outputs; forced tool_choice is rejected by Sonnet/Opus 5.5.
+  structured_output_method: json_schema
+  structured_output_retries: 1
+
+limits:
+  batch:
+    max_tool_calls: 6
+    wall_clock_seconds: 300
+    token_budget: 400000
+  chat:
+    max_tool_calls: 4
+    wall_clock_seconds: 120
+    token_budget: 150000
+
+sandbox:
+  timeout_seconds: 60
+  memory_limit_mb: 1024
+  output_char_limit: 4000
+  allowed_imports: [pandas, numpy, json, math, statistics, re, datetime, collections, itertools]
+  blocked_calls: [__import__, eval, exec, compile]
+  blocked_modules: [os, sys, subprocess, socket, shutil]
+
+data_model:
+  provider: yaml          # yaml | mcp (mcp arrives in Phase 8)
+  default: retail_sales
+
+paths:
+  workspace_root: workspace
+  data_model_dir: config/data_model
+  checkpoint_db: workspace/checkpoints.sqlite
+  fixtures_dir: tests/dva/fixtures
+  eval_results_dir: evals/results
+
+logging:
+  level: INFO

@@ -1,0 +1,33 @@
+{
+  "description": "channel coded as Store, B&M and 1, plus 25 rows with unknown code ZZ.",
+  "files": {
+    "sales": "sales.csv",
+    "products": "products.csv",
+    "stores": "stores.csv"
+  },
+  "rows": {
+    "sales": 3000,
+    "products": 300,
+    "stores": 40
+  },
+  "expected_field_mapping": {
+    "transaction_date": "transaction_date",
+    "store_id": "store_id",
+    "sku": "sku",
+    "quantity": "quantity",
+    "unit_price": "unit_price",
+    "channel": "channel",
+    "promo_flag": "promo_flag",
+    "category": "category",
+    "pack_size": "pack_size",
+    "region": "region"
+  },
+  "expected_missing_required_fields": [],
+  "expected_issues": [
+    {
+      "field": "channel",
+      "issue_type": "unmapped_category",
+      "count": 25
+    }
+  ]
+}

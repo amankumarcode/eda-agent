@@ -1,0 +1,41 @@
+{
+  "description": "Source names from the synonym lists, plus Cashier_Notes and Legacy_Code.",
+  "files": {
+    "sales": "sales.csv",
+    "products": "products.csv",
+    "stores": "stores.csv"
+  },
+  "rows": {
+    "sales": 2000,
+    "products": 300,
+    "stores": 40
+  },
+  "expected_field_mapping": {
+    "Txn_Date": "transaction_date",
+    "Store_No": "store_id",
+    "Item_No": "sku",
+    "Units_Sold": "quantity",
+    "Sell_Price": "unit_price",
+    "Sales_Channel": "channel",
+    "On_Promo": "promo_flag",
+    "Cashier_Notes": null,
+    "Legacy_Code": null,
+    "UPC": "sku",
+    "Dept": "category",
+    "Case_Pack": "pack_size",
+    "District": "region"
+  },
+  "expected_missing_required_fields": [],
+  "expected_issues": [
+    {
+      "field": "Cashier_Notes",
+      "issue_type": "unmapped_column",
+      "count": 2000
+    },
+    {
+      "field": "Legacy_Code",
+      "issue_type": "unmapped_column",
+      "count": 2000
+    }
+  ]
+}

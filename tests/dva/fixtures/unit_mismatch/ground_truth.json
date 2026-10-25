@@ -1,0 +1,38 @@
+{
+  "description": "Quantities x12 (cases, not units) in stores ['S007', 'S019', 'S033'].",
+  "files": {
+    "sales": "sales.csv",
+    "products": "products.csv",
+    "stores": "stores.csv"
+  },
+  "rows": {
+    "sales": 5000,
+    "products": 300,
+    "stores": 40
+  },
+  "expected_field_mapping": {
+    "transaction_date": "transaction_date",
+    "store_id": "store_id",
+    "sku": "sku",
+    "quantity": "quantity",
+    "unit_price": "unit_price",
+    "channel": "channel",
+    "promo_flag": "promo_flag",
+    "category": "category",
+    "pack_size": "pack_size",
+    "region": "region"
+  },
+  "expected_missing_required_fields": [],
+  "expected_issues": [
+    {
+      "field": "quantity",
+      "issue_type": "unit_mismatch",
+      "count_approx": 413
+    }
+  ],
+  "case_stores": [
+    "S007",
+    "S019",
+    "S033"
+  ]
+}

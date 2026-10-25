@@ -1,0 +1,41 @@
+From: data-team@customer.example
+To: onboarding@forecasting.example
+Subject: Store master
+Date: Mon, 01 Jan 2024 00:00:00 -0000
+Message-ID: <1259294330@fixtures.dva>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="dva-fixture-boundary"
+
+--dva-fixture-boundary
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Store master below (HTML table).
+
+--dva-fixture-boundary
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+
+<html><body><p>Store master:</p><table><tr><th>store_id</th><th>region</th></=
+tr><tr><td>S001</td><td>East</td></tr><tr><td>S002</td><td>North</td></tr><tr=
+><td>S003</td><td>West</td></tr><tr><td>S004</td><td>North</td></tr><tr><td>S=
+005</td><td>West</td></tr><tr><td>S006</td><td>South</td></tr><tr><td>S007</t=
+d><td>North</td></tr><tr><td>S008</td><td>West</td></tr><tr><td>S009</td><td>=
+East</td></tr><tr><td>S010</td><td>West</td></tr><tr><td>S011</td><td>West</t=
+d></tr><tr><td>S012</td><td>West</td></tr><tr><td>S013</td><td>North</td></tr=
+><tr><td>S014</td><td>East</td></tr><tr><td>S015</td><td>South</td></tr><tr><=
+td>S016</td><td>North</td></tr><tr><td>S017</td><td>North</td></tr><tr><td>S0=
+18</td><td>West</td></tr><tr><td>S019</td><td>West</td></tr><tr><td>S020</td>=
+<td>South</td></tr><tr><td>S021</td><td>South</td></tr><tr><td>S022</td><td>N=
+orth</td></tr><tr><td>S023</td><td>North</td></tr><tr><td>S024</td><td>South<=
+/td></tr><tr><td>S025</td><td>West</td></tr><tr><td>S026</td><td>East</td></t=
+r><tr><td>S027</td><td>North</td></tr><tr><td>S028</td><td>East</td></tr><tr>=
+<td>S029</td><td>North</td></tr><tr><td>S030</td><td>South</td></tr><tr><td>S=
+031</td><td>South</td></tr><tr><td>S032</td><td>South</td></tr><tr><td>S033</=
+td><td>West</td></tr><tr><td>S034</td><td>South</td></tr><tr><td>S035</td><td=
+>South</td></tr><tr><td>S036</td><td>North</td></tr><tr><td>S037</td><td>Sout=
+h</td></tr><tr><td>S038</td><td>West</td></tr><tr><td>S039</td><td>North</td>=
+</tr><tr><td>S040</td><td>North</td></tr></table></body></html>
+
+--dva-fixture-boundary--

@@ -1,0 +1,24 @@
+name: retail_sales
+tables:
+  sales:
+    fields:
+      transaction_date: {type: date,    required: true, synonyms: [Date, Txn_Date, Sale_Dt], range: ['2015-01-01', 'today']}
+      store_id:         {type: string,  required: true, synonyms: [Store, Store_No, Location_ID], join: stores.store_id}
+      sku:              {type: string,  required: true, synonyms: [Item, Item_No, UPC, Product_Code], join: products.sku}
+      quantity:         {type: number,  required: true, synonyms: [Qty, Units_Sold, Sales_Qty], range: [-500, 5000], units: each}
+      unit_price:       {type: number,  required: true, synonyms: [Price, Unit_Price, Sell_Price], range: [0.01, 500]}
+      channel:          {type: category, required: true, synonyms: [Sales_Channel, Channel_Code],
+                         categories: {store: [Store, B&M, '1'], online: [Web, Ecom, '2'], marketplace: [MKT, '3']}}
+      promo_flag:       {type: boolean, required: false, synonyms: [Promo, On_Promo]}
+  products:
+    fields:
+      sku:       {type: string,  required: true, synonyms: [Item_No, UPC]}
+      category:  {type: string,  required: true, synonyms: [Dept, Category_Name]}
+      pack_size: {type: integer, required: true, synonyms: [Case_Pack, Units_Per_Case], range: [1, 144]}
+  stores:
+    fields:
+      store_id: {type: string, required: true, synonyms: [Store_No]}
+      region:   {type: string, required: true, synonyms: [Region_Name, District]}
+cross_field_rules:
+  - transaction_date <= today
+  - quantity * unit_price between -10000 and 50000

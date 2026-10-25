@@ -131,8 +131,8 @@ def test_unknown_check_ids_are_not_marked_complete(fixtures_dir, tmp_path, retai
 def test_prompt_has_structure_but_no_data_rows(fixtures_dir, tmp_path, retail_model, settings):
     _, ws, state = _parsed_inputs(fixtures_dir, tmp_path, retail_model, settings,
                                   "kitchen_sink", {"quantity:units"})  # fmt: skip
-    messages = build_messages(eda_inputs_from_state(state, focus="check quantity units only"),
-                              settings)  # fmt: skip
+    inputs = eda_inputs_from_state(state, focus="check quantity units only", model=retail_model)
+    messages = build_messages(inputs, settings)
     prompt = "\n".join(m.content for m in messages)
     for expected in (
         state["parsed_data_ref"]["sales"],
@@ -143,6 +143,11 @@ def test_prompt_has_structure_but_no_data_rows(fixtures_dir, tmp_path, retail_mo
         "Focus: check quantity units only",
         "- unit_price: implausible_value (37 rows)",
         "Allowed imports: pandas",
+        "- sales.quantity: number; required; range [-500, 5000]; units each",
+        "- sales.channel: category; required; categories store, online, marketplace",
+        "- sales.sku: string; required; joins products.sku",
+        "- rule: quantity * unit_price between -10000 and 50000",
+        "negative quantities",
     ):
         assert expected in prompt, expected
     for value in ("SKU00", "S004", "manager ok", "2023-", "3.83"):

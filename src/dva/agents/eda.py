@@ -16,6 +16,7 @@ from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, System
 from pydantic import BaseModel, Field
 
 from dva.config import Settings, session_logger
+from dva.data_model import DataModel
 from dva.llm import StructuredOutputError, invoke_structured
 from dva.sandbox.runner import SandboxResult, run_code, truncate
 from dva.state import Finding, FindingSource, IssueType, Severity
@@ -41,6 +42,8 @@ Reporting:
 - Save large tables with df.to_csv(f"{{ARTIFACTS_DIR}}/<name>.csv") and use that path as
   evidence_ref. Print only short summaries; stdout is cut to {limit} characters.
 - Report real problems in the customer's data only, and do not repeat known findings.
+- Values the data model rules allow are not problems (for example, negative quantities
+  inside the quantity range are valid returns).
 
 Return the code and checks_addressed (the check ids the code evaluates)."""
 
@@ -52,6 +55,9 @@ Field mapping (customer column -> model field):
 {mapping}
 
 Checks remaining: {checks}
+
+Data model rules (already checked in code):
+{rules}
 
 Known findings (do not repeat):
 {known}
@@ -84,6 +90,7 @@ class EdaInputs(BaseModel):
     known_findings: list[Finding] = []
     user_request: str = ""
     focus: str | None = None
+    rules: str = ""  # data model rules as text (types, ranges, units, categories, joins)
 
     @property
     def checks_remaining(self) -> list[str]:
@@ -105,8 +112,29 @@ class EdaError(RuntimeError):
     """EDA could not start or the model gave no valid code (after the structured retry)."""
 
 
-def eda_inputs_from_state(state: dict[str, Any], focus: str | None = None) -> EdaInputs:
-    """Build EdaInputs from graph state. Reads state only."""
+def describe_rules(model: DataModel) -> str:
+    """The data model as short lines of text: no data, only field rules."""
+    lines = []
+    for spec in model.iter_fields():
+        parts = [str(spec.type), "required" if spec.required else "optional"]
+        if spec.range is not None:
+            low, high = (f"{b:g}" if isinstance(b, float) else b for b in spec.range)
+            parts.append(f"range [{low}, {high}]")
+        if spec.units:
+            parts.append(f"units {spec.units}")
+        if spec.categories:
+            parts.append(f"categories {', '.join(spec.categories)}")
+        if spec.join:
+            parts.append(f"joins {spec.join}")
+        lines.append(f"- {spec.qualified_name}: {'; '.join(parts)}")
+    lines += [f"- rule: {r.expression}" for r in model.cross_field_rules]
+    return "\n".join(lines)
+
+
+def eda_inputs_from_state(
+    state: dict[str, Any], focus: str | None = None, model: DataModel | None = None
+) -> EdaInputs:
+    """Build EdaInputs from graph state (and the data model's rules). Reads state only."""
     return EdaInputs(
         parsed_data_ref=state.get("parsed_data_ref") or {},
         data_profile=state.get("data_profile") or {},
@@ -116,6 +144,7 @@ def eda_inputs_from_state(state: dict[str, Any], focus: str | None = None) -> Ed
         known_findings=state.get("findings") or [],
         user_request=state.get("user_request") or "",
         focus=focus,
+        rules=describe_rules(model) if model is not None else "",
     )
 
 
@@ -136,6 +165,7 @@ def build_messages(inputs: EdaInputs, settings: Settings) -> list[BaseMessage]:
     user = EDA_USER_PROMPT.format(
         tables=tables, mapping=json.dumps(inputs.field_mapping),
         checks=", ".join(inputs.checks_remaining) or "none", known=known,
+        rules=inputs.rules or "- (not provided)",
         question=inputs.user_request or "(none)", focus=inputs.focus or "(none)",
     )  # fmt: skip
     return [SystemMessage(system), HumanMessage(user)]

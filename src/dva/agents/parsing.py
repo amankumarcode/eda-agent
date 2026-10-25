@@ -100,7 +100,8 @@ def parse_files(
     for item in mappings:
         if item.unmapped and mapper is not None:
             used, ok = _resolve_with_llm(item, model, mapper, options.retries)
-            tokens, first_pass = tokens + used, first_pass + [ok]
+            tokens += used
+            first_pass += [] if ok is None else [ok]
     log.info("loaded %d tables from %d files", len(mappings), len(paths))
     result = _build_result(mappings, issues, model, workspace, options.existing_profile)
     checks = run_plausibility({**options.existing_refs, **result.parsed_data_ref}, model,
@@ -214,14 +215,15 @@ def _mapper_messages(item: TableMapping, model: DataModel, free: list[str]) -> l
 
 def _resolve_with_llm(
     item: TableMapping, model: DataModel, mapper: BaseChatModel, retries: int
-) -> tuple[int, bool]:
+) -> tuple[int, bool | None]:
     """Ask the mapper about unresolved columns; update ``item`` in place.
 
-    Returns: (tokens used, whether the first answer was valid).
+    Returns: (tokens used, whether the first answer was valid, or None if no call was made
+    because every field of the table is already taken).
     """
     free = [f for f in model.tables[item.table].fields if f not in item.mapping.values()]
     if not free:
-        return 0, True
+        return 0, None
     schema = _mapper_schema(item.unmapped, free)
     expected = set(item.unmapped)
 

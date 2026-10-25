@@ -36,6 +36,10 @@ from dva.workspace import SessionWorkspace, session_workspace
 TOOL_ERRORS = (ParsingError, EdaError, SynthesisError)
 
 
+def _ignore(event: str, data: dict[str, Any]) -> None:
+    """Default recorder: drop tool events."""
+
+
 class GraphDeps(BaseModel):
     """Everything the graph needs from outside: settings, data model, models, clocks."""
 
@@ -46,6 +50,9 @@ class GraphDeps(BaseModel):
     llm_factory: Callable[[Role], BaseChatModel]
     clock: Callable[[], float] = Field(default=time.time)
     today: Callable[[], date] = Field(default=date.today)
+    # Receives (tool name, outcome details) after each tool run; evals use it to count
+    # first-pass schema validity and EDA run success without adding state fields.
+    recorder: Callable[[str, dict[str, Any]], None] = Field(default=_ignore)
 
     def workspace(self, state: dict[str, Any]) -> SessionWorkspace:
         return session_workspace(self.settings.paths.workspace_root, state["session_id"])
@@ -93,7 +100,9 @@ def parsing_tool(deps: GraphDeps) -> BaseTool:
             result = parse_files([Path(f) for f in files], deps.data_model, deps.workspace(state),
                                  deps.llm_factory("column_mapper"), options)  # fmt: skip
         except TOOL_ERRORS as exc:
+            deps.recorder("run_parsing", {"ok": False, "error": str(exc)})
             return _error(tool_call_id, "run_parsing", exc)
+        deps.recorder("run_parsing", {"ok": True, "first_pass": result.mapper_first_pass})
         update = parsing_state_update(state, result)
         tables = ", ".join(f"{t} ({p['rows']} rows)" for t, p in result.data_profile.items())
         text = (f"Parsed {len(files)} files into {tables or 'no tables'}. Findings: "
@@ -117,11 +126,14 @@ def eda_tool(deps: GraphDeps) -> BaseTool:
         """Write and run analysis code on the parsed data. Optional focus narrows the run,
         for example "check quantity units only"."""
         try:
-            inputs = eda_inputs_from_state(state, focus)
+            inputs = eda_inputs_from_state(state, focus, deps.data_model)
             result = run_eda_agent(inputs, deps.llm_factory("eda_coder"), deps.settings,
                                    deps.workspace(state))  # fmt: skip
         except TOOL_ERRORS as exc:
+            deps.recorder("run_eda", {"ok": False, "error": str(exc), "first_pass": [False]})
             return _error(tool_call_id, "run_eda", exc)
+        deps.recorder("run_eda", {"ok": result.succeeded, "attempts": result.attempts,
+                                  "first_pass": result.first_pass_valid})  # fmt: skip
         update = eda_state_update(state, result)
         return _reply(tool_call_id, "run_eda", result.summary,
                       {**update, "tokens_used": _tokens(state, result.tokens_used)})  # fmt: skip
@@ -143,7 +155,9 @@ def synthesis_tool(deps: GraphDeps) -> BaseTool:
                                    deps.llm_factory("synthesis"), deps.settings,
                                    deps.workspace(state))  # fmt: skip
         except TOOL_ERRORS as exc:
+            deps.recorder("run_synthesis", {"ok": False, "error": str(exc), "first_pass": [False]})
             return _error(tool_call_id, "run_synthesis", exc)
+        deps.recorder("run_synthesis", {"ok": True, "first_pass": [result.first_pass_valid]})
         update = synthesis_state_update(state, result)
         text = (f"Report written to {result.report_ref}. {len(result.drafts)} drafts queued "
                 f"for review. Summary: {result.report_summary}")  # fmt: skip

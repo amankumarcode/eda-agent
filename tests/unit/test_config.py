@@ -20,6 +20,8 @@ def test_settings_load_with_roles_and_limits(settings):
     assert settings.limits.chat.max_tool_calls == 4
     assert settings.limits.batch.wall_clock_seconds == 300
     assert settings.limits.chat.wall_clock_seconds == 120
+    assert settings.limits.batch.token_budget == 60000
+    assert settings.limits.chat.token_budget == 30000
     assert settings.sandbox.timeout_seconds == 60
     assert settings.sandbox.memory_limit_mb == 1024
     assert settings.sandbox.output_char_limit == 4000

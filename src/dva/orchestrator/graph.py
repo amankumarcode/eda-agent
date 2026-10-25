@@ -38,6 +38,7 @@ from dva.orchestrator.routing import (
 from dva.orchestrator.tools import GraphDeps, make_tools
 from dva.state import PipelineState
 
+RECURSION_LIMIT = 60  # graph steps per invocation; the tool-call cap stops runs far earlier
 DEFAULT_BATCH_REQUEST = "Validate the uploaded files against the data model and write the report."
 STATE_TYPES = ("Finding", "IssueType", "Severity", "FindingSource", "Draft", "DraftStatus")
 
@@ -188,7 +189,35 @@ def chat_input(deps: GraphDeps, session_id: str, message: str,
 
 
 def thread_config(session_id: str) -> dict[str, Any]:
-    return {"configurable": {"thread_id": session_id}}
+    return {"configurable": {"thread_id": session_id}, "recursion_limit": RECURSION_LIMIT}
+
+
+def run_batch(
+    deps: GraphDeps, session_id: str, files: list[str], request: str = DEFAULT_BATCH_REQUEST
+) -> dict[str, Any]:
+    """One batch run: a single graph invocation without a checkpointer.
+
+    Reads: the files. Writes: everything the tools write under the session's workspace.
+    Returns: the final state.
+    """
+    graph = build_graph(deps)
+    return graph.invoke(batch_input(deps, session_id, files, request),
+                        {"recursion_limit": RECURSION_LIMIT})  # fmt: skip
+
+
+def message_text(message: BaseMessage) -> str:
+    """The visible text of a message (thinking and tool blocks are left out)."""
+    if isinstance(message.content, str):
+        return message.content
+    parts = [b.get("text", "") for b in message.content
+             if isinstance(b, dict) and b.get("type") == "text"]  # fmt: skip
+    return "".join(parts)
+
+
+def final_reply(state: dict[str, Any]) -> str:
+    """Text of the last assistant message in the state, or ''."""
+    last = _last_ai(state)
+    return message_text(last) if last is not None else ""
 
 
 def checkpoint_serializer() -> JsonPlusSerializer:

@@ -63,7 +63,7 @@ def test_field_mapping_accuracy_on_every_fixture(fixtures_dir, tmp_path, retail_
     mapper = FakeChatModel()
     result = _parse(_files(fixtures_dir, name), retail_model, tmp_path, mapper)
     assert _mapping_accuracy(result, _gt(fixtures_dir, name)["expected_field_mapping"]) == 1.0
-    assert mapper.calls == []
+    assert mapper.calls == [] and result.mapper_first_pass == []  # no call, nothing counted
 
 
 @pytest.fixture

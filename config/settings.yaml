@@ -3,11 +3,13 @@
 
 models:
   # One entry per role; each is created with LangChain's init_chat_model.
-  orchestrator:  {provider: anthropic, model: claude-sonnet-5-5, max_tokens: 4096}
-  column_mapper: {provider: anthropic, model: claude-haiku-5-5,  max_tokens: 2048}
-  eda_coder:     {provider: anthropic, model: claude-opus-5-5,   max_tokens: 16000}
-  synthesis:     {provider: anthropic, model: claude-sonnet-5-5, max_tokens: 8192}
-  eval_matcher:  {provider: anthropic, model: claude-haiku-5-5,  max_tokens: 512}
+  # max_tokens includes adaptive-thinking tokens, so it is set well above the visible
+  # output; effort (low|medium|high|xhigh|max) controls how much the model thinks.
+  orchestrator:  {provider: anthropic, model: claude-sonnet-5-5, max_tokens: 16000, effort: medium}
+  column_mapper: {provider: anthropic, model: claude-haiku-5-5,  max_tokens: 8000,  effort: low}
+  eda_coder:     {provider: anthropic, model: claude-opus-5-5,   max_tokens: 16000, effort: medium}
+  synthesis:     {provider: anthropic, model: claude-sonnet-5-5, max_tokens: 8000,  effort: low}
+  eval_matcher:  {provider: anthropic, model: claude-haiku-5-5,  max_tokens: 4000,  effort: low}
 
 llm:
   # The Anthropic API rejects temperature/top_p/top_k since 2026-10-21, so no
@@ -18,14 +20,16 @@ llm:
   structured_output_retries: 1
 
 limits:
+  # Token budgets are about 5x the real usage measured in Phase 7 (~10k tokens per batch
+  # run, max 11k across all 12 fixtures).
   batch:
     max_tool_calls: 6
     wall_clock_seconds: 300
-    token_budget: 400000
+    token_budget: 60000
   chat:
     max_tool_calls: 4
     wall_clock_seconds: 120
-    token_budget: 150000
+    token_budget: 30000
 
 sandbox:
   timeout_seconds: 60

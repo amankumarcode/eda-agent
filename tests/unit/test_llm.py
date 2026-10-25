@@ -15,7 +15,9 @@ class Answer(BaseModel):
 def test_create_chat_model_sends_no_temperature(settings):
     with patch("dva.llm.init_chat_model") as init:
         create_chat_model(settings, "column_mapper")
-    init.assert_called_once_with("claude-haiku-5-5", model_provider="anthropic", max_tokens=2048)
+    init.assert_called_once_with(
+        "claude-haiku-5-5", model_provider="anthropic", max_tokens=8000, effort="low"
+    )
 
 
 def test_create_chat_model_passes_temperature_when_configured(settings):

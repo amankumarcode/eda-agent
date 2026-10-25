@@ -50,3 +50,6 @@ workspace/
 # Generated fixtures are committed on purpose (overrides *.csv / *.xlsx above)
 !tests/fixtures/**/*.csv
 !tests/fixtures/**/*.xlsx
+
+# Eval results are runtime output
+evals/results/

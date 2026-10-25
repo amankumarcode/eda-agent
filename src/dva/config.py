@@ -32,6 +32,7 @@ class ModelSettings(_Strict):
     provider: str
     model: str
     max_tokens: PositiveInt
+    effort: Literal["low", "medium", "high", "xhigh", "max"] | None = None
 
 
 class ModelsSettings(_Strict):
